@@ -159,7 +159,6 @@ while True:
   response = None
   if len(objects) == 0:
     response = make_input("Create garden '" + garden_name + "' - options:", "place object", "view garden", "exit").lower()
-    initial_create = False
   else:
      response = make_input("Edit garden '" + garden_name + "' - options:", "place object", "delete object", "move object ", "grow object", "view garden ", "exit").lower()
 
@@ -179,12 +178,18 @@ while True:
       print(object.visuals[object.visualState] if issubclass(type(object), Growable) else object.visual)
       object.x = int_input("How far across would you like to place the object <--->?\n")
       object.y = int_input("How far from the top will you like to place your object ^^^vvv?\n")
+      # We have to make sure id is unique, if lots of deleteions and additions are done
+      # length may not be enough to ensure they do not overlap
       id = len(objects) + 1
+      while objects.get(id):
+        id = len(objects) + 1
       objects[id] = object
       render(objects)
     case "d" | "delete object":
       render(objects, True)
-      id = int_input("Enter the ID of the object you want to delete\n")
+      id = -1
+      while objects.get(id) == None:
+        id = int_input("Enter the ID of the object you want to delete\n")
       objects.pop(id) 
       render(objects)
       continue
@@ -193,7 +198,7 @@ while True:
       render(objects)
     case "m" | "move object":
       render(objects, True)
-      id = 0
+      id = -1
       while objects.get(id) == None:
         id = int_input("Enter the ID of the object you want to move")
       
@@ -206,7 +211,7 @@ while True:
         growable_objects = dict(filter(lambda pair: issubclass(type(pair[1]), Growable), objects.items()))
         print("[ONLY SHOWING] Growable objects:")
         render(growable_objects, True)
-        id = 0
+        id = -1
         while growable_objects.get(id) == None:
           id = int_input("Enter the ID of the growable object you want to grow\n")
 
