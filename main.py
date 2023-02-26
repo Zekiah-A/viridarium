@@ -7,7 +7,6 @@ class Object:
   x = 0
   y = 0
   width = 6
-  id = 0
 
 class Building(Object):
   visual = """
@@ -20,7 +19,7 @@ class Building(Object):
     ##########   
     ##########   
   """
-  width = 15
+  width = 17
 
 
 class Fence(Object):
@@ -29,7 +28,7 @@ class Fence(Object):
   =|===|===|===|==
   =|===|===|===|==
   """
-  width = 16
+  width = 18
 
 
 class Growable:
@@ -40,7 +39,6 @@ class Growable:
   x = 0
   y = 0
   width = 6
-  id = 0
 
 class Sunflower(Growable):
   visuals = ["""
@@ -53,24 +51,24 @@ class Sunflower(Growable):
   \|/
    | 
   """]
-  width = 3
+  width = 5
 
 class Clover(Growable):
   visuals = ["""
-  \{\{}}
-  ~Y~
-  \|/
-  \|/
+  {{}}
+  ~Y~ 
+  \|/ 
+  \|/ 
   """, """
-   \{\} 
+   {} 
   ~Y~ 
   \|/ 
    |  
   """, """
-   \{\} 
-  \|/
+   {} 
+  \|/ 
   """]
-  width = 4
+  width = 6
 
 def render(_objects, with_ids = False) -> None:
   # viewport is max 64x16 chars, we treat it like a 2D array by using the logic of:
@@ -86,15 +84,17 @@ def render(_objects, with_ids = False) -> None:
     object = _objects[id]
     vis = None
     if issubclass(type(object), Growable):
-      vis = object.visuals[object.visualState]
+      vis = object.visuals[object.visualState].replace("\n", "")
     else:
-      vis = object.visual
+      vis = object.visual.replace("\n", "")
 
     for i in range(0, len(vis)):
       # Map out to viewport cordinates
-      object_px_x = (i % object.width) + object.x
-      object_px_y = math.floor(i / object.width) + object.y
+      object_px_x = (i % object.width) + object.x # (x offset from object x + object x) -> (real x)
+      object_px_y = math.floor(i / object.width) + object.y # (y offset from object y + object y) -> (real y)
       object_px_index = object_px_x % width + object_px_y % width * width
+      if object_px_index > len(viewport):
+        continue
       viewport[int(object_px_index)] = vis[i]
 
     if with_ids == True:
@@ -148,7 +148,8 @@ while True:
   
   match make_input("Use your keyboard to choose an option", "start game", "exit").lower():
     case "s" | "start game":
-      print("[Warning] Console dimensions are recommended to be of at least 64x16 characters")
+      print("[Warning] Console dimensions are recommended to be of at least 64x16 characters.")
+      print("If you can't see the title above properly, you need to make your window wider.\n")
       garden_name = input("Enter the name of your garden\n")
       break
     case "e" | "exit":
@@ -160,7 +161,7 @@ while True:
     response = make_input("Create garden '" + garden_name + "' - options:", "place object", "view garden", "exit").lower()
     initial_create = False
   else:
-     response = make_input("Edit garden '" + garden_name + "' - options:", "place object", "delete object", "move object", "view garden", "exit").lower()
+     response = make_input("Edit garden '" + garden_name + "' - options:", "place object", "delete object", "move object ", "grow object", "view garden ", "exit").lower()
 
   match response:
     case "p" | "place object":
@@ -179,7 +180,6 @@ while True:
       object.x = int_input("How far across would you like to place the object <--->?\n")
       object.y = int_input("How far from the top will you like to place your object ^^^vvv?\n")
       id = len(objects) + 1
-      object.id = id
       objects[id] = object
       render(objects)
     case "d" | "delete object":
@@ -201,6 +201,20 @@ while True:
       objects[id].y = int_input("How far from the top will you like to move your object ^v?\n")
       render(objects, True)
       continue
+    case "g" | "grow":
+        # Only let player select a growable object (plant)
+        growable_objects = dict(filter(lambda pair: issubclass(type(pair[1]), Growable), objects.items()))
+        print("[ONLY SHOWING] Growable objects:")
+        render(growable_objects)
+        id = 0
+        while growable_objects.get(id) == None:
+          id = int_input("Enter the ID of the growable object you want to grow\n")
+
+        if objects[id].visualState < len(objects[id].visuals) - 1:
+          objects[id].visualState += 1
+        else:
+          print("Cannot grow more, object is already fully grown!")
+        continue
     case "e" | "exit":
       exit()
     case _:
