@@ -55,9 +55,7 @@ class Sunflower(Growable):
 
 class Clover(Growable):
   visuals = ["""
-  {{}}
-  ~Y~ 
-  \|/ 
+   {} 
   \|/ 
   """, """
    {} 
@@ -65,7 +63,9 @@ class Clover(Growable):
   \|/ 
    |  
   """, """
-   {} 
+  {{}}
+  ~Y~ 
+  \|/ 
   \|/ 
   """]
   width = 6
