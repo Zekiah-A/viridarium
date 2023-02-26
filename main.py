@@ -166,13 +166,13 @@ while True:
     case "p" | "place object":
       # Dynamically instantiate the class from object name using a dictionary, we will ask the user
       # until they give us a response that will not give null when performing a lookup, fuzzy matching
-      # with the dictionary is also implementing using next
+      # with the dictionary is also implemented using next
       object_class = None
       while object_class == None:
         place_input = make_input("What object would you like to place?", *list(object_map.keys()))
         object_class = object_map.get(place_input)
         if object_class == None:
-          object_class = next(value for key, value in object_map.items() if key.startswith(place_input))
+          object_class = next(value for key, value in object_map.items() if key.startswith(place_input.lower()))
 
       object = object_class()
       print(object.visuals[object.visualState] if issubclass(type(object), Growable) else object.visual)
@@ -209,6 +209,9 @@ while True:
     case "g" | "grow":
         # Only let player select a growable object (plant)
         growable_objects = dict(filter(lambda pair: issubclass(type(pair[1]), Growable), objects.items()))
+        if (len(growable_objects) == 0):
+          print("You haven't placed down any growable objects yet, cannot grow any ;(")
+          continue
         print("[ONLY SHOWING] Growable objects:")
         render(growable_objects, True)
         id = -1
