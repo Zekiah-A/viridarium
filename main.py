@@ -176,8 +176,8 @@ while True:
 
       object = object_class()
       print(object.visuals[object.visualState] if issubclass(type(object), Growable) else object.visual)
-      object.x = int_input("How far across would you like to place the object <--->?\n")
-      object.y = int_input("How far from the top will you like to place your object ^^^vvv?\n")
+      object.x = int_input("How far across would you like to place the object <->?\n")
+      object.y = int_input("How far from the top will you like to place your object ↑↓?\n")
       # We have to make sure id is unique, if lots of deleteions and additions are done
       # length may not be enough to ensure they do not overlap
       id = len(objects) + 1
@@ -200,17 +200,17 @@ while True:
       render(objects, True)
       id = -1
       while objects.get(id) == None:
-        id = int_input("Enter the ID of the object you want to move")
+        id = int_input("Enter the ID of the object you want to move\n")
       
       objects[id].x = int_input("How far across would you like to move the object <--->?\n")
       objects[id].y = int_input("How far from the top will you like to move your object ^v?\n")
       render(objects)
       continue
-    case "g" | "grow":
+    case "g" | "grow object":
         # Only let player select a growable object (plant)
         growable_objects = dict(filter(lambda pair: issubclass(type(pair[1]), Growable), objects.items()))
         if (len(growable_objects) == 0):
-          print("You haven't placed down any growable objects yet, cannot grow any ;(")
+          print("You haven't placed down any growable objects yet, cannot grow any!\n")
           continue
         print("[ONLY SHOWING] Growable objects:")
         render(growable_objects, True)
