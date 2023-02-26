@@ -93,13 +93,13 @@ def render(_objects, with_ids = False) -> None:
       object_px_x = (i % object.width) + object.x # (x offset from object x + object x) -> (real x)
       object_px_y = math.floor(i / object.width) + object.y # (y offset from object y + object y) -> (real y)
       object_px_index = object_px_x % width + object_px_y % width * width
-      if object_px_index > len(viewport):
-        continue
-      viewport[int(object_px_index)] = vis[i]
+      if object_px_index < len(viewport):
+        viewport[object_px_index] = vis[i]
 
     if with_ids == True:
       id_index = object.x % width + object.y % width * width
-      viewport[int(id_index)] = str(id)
+      if id_index < len(viewport):
+        viewport[id_index] = str(id)
 
   # The viewport also needs to be restricted to the width, so at the end, at every [width]
   # chars, we insert a newline 
@@ -199,13 +199,13 @@ while True:
       
       objects[id].x = int_input("How far across would you like to move the object <--->?\n")
       objects[id].y = int_input("How far from the top will you like to move your object ^v?\n")
-      render(objects, True)
+      render(objects)
       continue
     case "g" | "grow":
         # Only let player select a growable object (plant)
         growable_objects = dict(filter(lambda pair: issubclass(type(pair[1]), Growable), objects.items()))
         print("[ONLY SHOWING] Growable objects:")
-        render(growable_objects)
+        render(growable_objects, True)
         id = 0
         while growable_objects.get(id) == None:
           id = int_input("Enter the ID of the growable object you want to grow\n")
@@ -214,6 +214,7 @@ while True:
           objects[id].visualState += 1
         else:
           print("Cannot grow more, object is already fully grown!")
+        render(objects)
         continue
     case "e" | "exit":
       exit()
