@@ -99,7 +99,10 @@ def render(_objects, with_ids = False) -> None:
     if with_ids == True:
       id_index = object.x % width + object.y % width * width
       if id_index < len(viewport):
-        viewport[id_index] = str(id)
+        # In case the object id is 2 or more digits, roll over to next columns to not
+        # end up shifting over everything
+        for i in range(0, len(str(id))):
+          viewport[id_index + i] = str(id)[i]
 
   # The viewport also needs to be restricted to the width, so at the end, at every [width]
   # chars, we insert a newline 
